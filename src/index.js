@@ -1,95 +1,92 @@
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import _ from 'lodash';
 import WatchJS from 'melanke-watchjs';
 import validator from 'validator';
 import getFeedData from './request';
-
-const feedField = document.getElementById('link-to-feed');
-const addFeedBtn = document.getElementById('add-feed-btn');
+import parseXml from './parser';
 
 const urlProxy = 'https://cors-anywhere.herokuapp.com/';
 const { watch } = WatchJS;
 
 const state = {
-  emptyField: true,
-  validUrl: true,
+  feedFormState: {},
+  formElements: {},
+  listUrl: new Set(),
 };
 
-const addFormErrorState = (errorText) => {
-  feedField.classList.add('is-invalid');
-  const divEl = document.createElement('div');
-  divEl.classList.add('invalid-feedback');
-  divEl.textContent = errorText;
-  feedField.after(divEl);
-};
+const feedFormStates = [
+  {
+    type: 'emptyField',
+    check: ({ feedInput }) => feedInput.value === '',
+  },
+  {
+    type: 'validUrl',
+    check: ({ url }) => validator.isURL(url),
+  },
+  {
+    type: 'invalidUrl',
+    check: ({ url }) => !validator.isURL(url),
+    errorMessage: 'Invalid URL',
+  },
+  {
+    type: 'submittedUrl',
+    check: ({ url }) => state.listUrl.has(url),
+    errorMessage: 'This URL is already in the list',
+  },
+];
 
-const removeFormErrorState = () => {
-  const errorText = document.querySelector('.invalid-feedback');
-  feedField.classList.remove('is-invalid');
+const getFeedFormState = (url, feedInput) => (
+  _.find(feedFormStates, ({ check }) => check({ url, feedInput }))
+);
 
-  if (errorText) {
-    errorText.remove();
-  }
-};
+document.addEventListener('DOMContentLoaded', () => {
+  const feedForm = document.getElementById('feed-form');
+  const feedInput = document.getElementById('feed-input');
+  const feedError = document.getElementById('feed-error');
+  const feedBtn = document.getElementById('feed-btn');
 
-const blockBtn = () => {
-  addFeedBtn.setAttribute('disabled', '');
-};
+  state.formElements = { feedInput, feedError, feedBtn };
 
-const unlockkBtn = () => {
-  addFeedBtn.removeAttribute('disabled');
-};
+  feedForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const urlToFeed = feedInput.value;
+    const currentFeed = getFeedData(urlProxy, urlToFeed);
+    feedInput.value = '';
 
-const clearField = () => {
-  feedField.value = '';
-};
+    currentFeed.then((data) => {
+      parseXml(data);
+    });
+  });
 
-feedField.addEventListener('input', ({ target }) => {
-  const { value } = target;
-
-  if (value.length === 0) {
-    state.emptyField = true;
-    state.validUrl = true;
-  } else {
-    state.emptyField = false;
-    state.validUrl = validator.isURL(value);
-  }
-});
-
-addFeedBtn.addEventListener('click', (evt) => {
-  evt.preventDefault();
-
-  const urlToFeed = feedField.value;
-  const currentFeed = getFeedData(urlProxy, urlToFeed);
-  blockBtn();
-
-  currentFeed.then((data) => {
-    console.log(data);
-    clearField();
+  feedInput.addEventListener('input', ({ target }) => {
+    const { value } = target;
+    state.feedFormState = getFeedFormState(value, feedInput);
   });
 });
 
-watch(state, 'emptyField', () => {
-  const { emptyField } = state;
+watch(state, 'feedFormState', () => {
+  const { type, errorMessage } = state.feedFormState;
+  const { feedInput, feedError, feedBtn } = state.formElements;
 
-  if (emptyField) {
-    blockBtn();
-    removeFormErrorState();
-  } else {
-    unlockkBtn();
-  }
-});
-
-watch(state, 'validUrl', () => {
-  const { emptyField, validUrl } = state;
-
-  if (validUrl && !emptyField) {
-    unlockkBtn();
-    removeFormErrorState();
-  } else if (emptyField) {
-    blockBtn();
-  } else {
-    blockBtn();
-    addFormErrorState('Invalid URL');
+  switch (type) {
+    case 'validUrl':
+      feedInput.classList.remove('is-invalid');
+      feedError.textContent = '';
+      feedBtn.disabled = false;
+      break;
+    case 'emptyField':
+      feedInput.classList.remove('is-invalid');
+      feedError.textContent = '';
+      feedBtn.disabled = true;
+      break;
+    case 'invalidUrl':
+    case 'submittedUrl':
+      feedInput.classList.add('is-invalid');
+      feedError.textContent = errorMessage;
+      feedBtn.disabled = true;
+      break;
+    default:
+      break;
   }
 });

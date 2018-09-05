@@ -10,13 +10,15 @@
             <div class="container">
                 <h1 class="display-4">RSS reader</h1>
                 <p class="lead">A simple rss reader with automatic update</p>
-                <form>
+
+                <form id="feed-form">
                     <div class="form-row">
                         <div class="col-4">
-                            <input type="text" class="form-control" id="link-to-feed" placeholder="Enter link">
+                            <input type="text" class="form-control" id="feed-input" placeholder="Enter link" required>
+                            <div class="invalid-feedback position-absolute" id="feed-error"></div>
                         </div>
                         <div class="col-2">
-                            <button type="submit" class="btn btn-primary btn-block" id="add-feed-btn" disabled>Add RSS feed</button>
+                            <button type="submit" class="btn btn-primary btn-block" id="feed-btn" disabled>Add RSS feed</button>
                         </div>
                     </div>
                 </form>
