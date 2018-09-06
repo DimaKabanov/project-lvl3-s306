@@ -25,43 +25,30 @@
             </div>
         </div>
 
-        <div class="container">
-            <div class="mb-5">
-                <h2>h2. Bootstrap heading</h2>
-                <p class="lead">Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus.</p>
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                        <h5 class="mb-1">List group item heading</h5>
-                        <p class="mb-0">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                        <h5 class="mb-1">List group item heading</h5>
-                        <p class="mb-0">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                        <h5 class="mb-1">List group item heading</h5>
-                        <p class="mb-0">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    </a>
-                </div>
-            </div>
-            <div class="mb-5">
-                <h2>h2. Bootstrap heading</h2>
-                <p class="lead">Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus.</p>
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                        <h5 class="mb-1">List group item heading</h5>
-                        <p class="mb-0">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                        <h5 class="mb-1">List group item heading</h5>
-                        <p class="mb-0">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                        <h5 class="mb-1">List group item heading</h5>
-                        <p class="mb-0">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    </a>
-                </div>
-            </div>
+        <div class="container" id="feed-container">
+            <!-- <div class="alert alert-danger" role="alert">
+                There is no rss feed on this path!
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div> -->
         </div>
+
+        <!-- feed-template -->
+        <template id="feed-template">
+            <div class="mb-5" id="feed-wrapper">
+                <h2 id="feed-title"></h2>
+                <p class="lead" id="feed-desc"></p>
+                <div class="list-group" id="feed-list"></div>
+            </div>
+        </template>
+
+        <!-- feed-item-template -->
+        <template id="feed-item-template">
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" id="feed-item-link">
+                <h5 class="mb-1" id="feed-item-title"></h5>
+                <p class="mb-0" id="feed-item-desc"></p>
+            </a>
+        </template>
     </body>
 </html>

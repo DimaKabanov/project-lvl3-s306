@@ -5,13 +5,15 @@ import WatchJS from 'melanke-watchjs';
 import validator from 'validator';
 import getFeedData from './request';
 import parseXml from './parser';
+import renderFeed from './render';
 
-const urlProxy = 'https://cors-anywhere.herokuapp.com/';
+const urlProxy = 'https://thingproxy.freeboard.io/fetch/';
 const { watch } = WatchJS;
 
 const state = {
   feedFormState: {},
   formElements: {},
+  allFeeds: [],
   listUrl: new Set(),
 };
 
@@ -21,6 +23,11 @@ const feedFormStates = [
     check: ({ feedInput }) => feedInput.value === '',
   },
   {
+    type: 'submittedUrl',
+    check: ({ url }) => state.listUrl.has(url),
+    errorMessage: 'This URL is already in the list',
+  },
+  {
     type: 'validUrl',
     check: ({ url }) => validator.isURL(url),
   },
@@ -28,11 +35,6 @@ const feedFormStates = [
     type: 'invalidUrl',
     check: ({ url }) => !validator.isURL(url),
     errorMessage: 'Invalid URL',
-  },
-  {
-    type: 'submittedUrl',
-    check: ({ url }) => state.listUrl.has(url),
-    errorMessage: 'This URL is already in the list',
   },
 ];
 
@@ -52,10 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
     evt.preventDefault();
     const urlToFeed = feedInput.value;
     const currentFeed = getFeedData(urlProxy, urlToFeed);
+    state.listUrl.add(urlToFeed);
     feedInput.value = '';
 
     currentFeed.then((data) => {
-      parseXml(data);
+      const carrentFeedData = parseXml(data);
+      state.allFeeds = [...state.allFeeds, carrentFeedData];
     });
   });
 
@@ -89,4 +93,10 @@ watch(state, 'feedFormState', () => {
     default:
       break;
   }
+});
+
+watch(state, 'allFeeds', () => {
+  const feedContainer = document.getElementById('feed-container');
+  feedContainer.innerHTML = '';
+  state.allFeeds.forEach(feed => renderFeed(feed, feedContainer));
 });
