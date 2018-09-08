@@ -1,21 +1,14 @@
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import _ from 'lodash';
-import WatchJS from 'melanke-watchjs';
-import validator from 'validator';
+import $ from 'jquery';
+import { find } from 'lodash';
+import { watch } from 'melanke-watchjs';
 import getFeedData from './request';
 import parseXml from './parser';
-import renderFeed from './render';
+import { renderFeed, renderModal } from './render';
+import * as state from './state';
 
 const urlProxy = 'https://thingproxy.freeboard.io/fetch/';
-const { watch } = WatchJS;
-
-const state = {
-  feedFormState: {},
-  formElements: {},
-  allFeeds: [],
-  listUrl: new Set(),
-};
 
 const feedFormStates = [
   {
@@ -24,22 +17,22 @@ const feedFormStates = [
   },
   {
     type: 'submittedUrl',
-    check: ({ url }) => state.listUrl.has(url),
+    check: ({ url }) => state.isDoubleUrl(url),
     errorMessage: 'This URL is already in the list',
   },
   {
     type: 'validUrl',
-    check: ({ url }) => validator.isURL(url),
+    check: ({ url }) => state.isValidUrl(url),
   },
   {
     type: 'invalidUrl',
-    check: ({ url }) => !validator.isURL(url),
+    check: ({ url }) => !state.isValidUrl(url),
     errorMessage: 'Invalid URL',
   },
 ];
 
 const getFeedFormState = (url, feedInput) => (
-  _.find(feedFormStates, ({ check }) => check({ url, feedInput }))
+  find(feedFormStates, ({ check }) => check({ url, feedInput }))
 );
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -48,30 +41,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedError = document.getElementById('feed-error');
   const feedBtn = document.getElementById('feed-btn');
 
-  state.formElements = { feedInput, feedError, feedBtn };
+  state.updateFormElements({ feedInput, feedError, feedBtn });
 
   feedForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
     const urlToFeed = feedInput.value;
     const currentFeed = getFeedData(urlProxy, urlToFeed);
-    state.listUrl.add(urlToFeed);
+    state.updateListUrl(urlToFeed);
     feedInput.value = '';
 
     currentFeed.then((data) => {
       const carrentFeedData = parseXml(data);
-      state.allFeeds = [...state.allFeeds, carrentFeedData];
+      state.updateFeedsList(carrentFeedData);
     });
   });
 
   feedInput.addEventListener('input', ({ target }) => {
     const { value } = target;
-    state.feedFormState = getFeedFormState(value, feedInput);
+    state.updateFormState(getFeedFormState(value, feedInput));
   });
 });
 
-watch(state, 'feedFormState', () => {
-  const { type, errorMessage } = state.feedFormState;
-  const { feedInput, feedError, feedBtn } = state.formElements;
+$('#feed-item-modal').on('show.bs.modal', (evt) => {
+  const newsId = $(evt.relatedTarget).attr('data-news-id');
+  renderModal(state.getFeedsItemById(newsId), evt.target);
+});
+
+watch(state.getState(), 'feedFormState', () => {
+  const { type, errorMessage } = state.getFormState();
+  const { feedInput, feedError, feedBtn } = state.getFormElements();
 
   switch (type) {
     case 'validUrl':
@@ -95,8 +93,8 @@ watch(state, 'feedFormState', () => {
   }
 });
 
-watch(state, 'allFeeds', () => {
+watch(state.getState(), 'allFeeds', () => {
   const feedContainer = document.getElementById('feed-container');
   feedContainer.innerHTML = '';
-  state.allFeeds.forEach(feed => renderFeed(feed, feedContainer));
+  state.getAllFeeds().forEach(feed => renderFeed(feed, feedContainer));
 });

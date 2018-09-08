@@ -1,12 +1,12 @@
 const createFeedItem = (feedItemData) => {
-  const { title, description, link } = feedItemData;
+  const { title, link, id } = feedItemData;
   const feedItemTemplate = document.getElementById('feed-item-template');
-  const feedItemLink = feedItemTemplate.content.getElementById('feed-item-link');
-  const feedItem = feedItemLink.cloneNode(true);
+  const feedItemWrapper = feedItemTemplate.content.getElementById('feed-item-wrapper');
+  const feedItem = feedItemWrapper.cloneNode(true);
 
-  feedItem.setAttribute('href', link);
-  feedItem.querySelector('#feed-item-title').textContent = title;
-  feedItem.querySelector('#feed-item-desc').textContent = description;
+  feedItem.querySelector('#feed-item-link').textContent = title;
+  feedItem.querySelector('#feed-item-link').setAttribute('href', link);
+  feedItem.querySelector('#feed-item-btn').setAttribute('data-news-id', id);
 
   return feedItem;
 };
@@ -29,9 +29,16 @@ const createFeed = (feedData) => {
   return feed;
 };
 
-const renderFeed = (feedData, feedContainer) => {
+export const renderFeed = (feedData, feedContainer) => {
   const feed = createFeed(feedData);
   feedContainer.appendChild(feed);
 };
 
-export default renderFeed;
+export const renderModal = (modalData, modal) => {
+  const { title, description } = modalData;
+  const modalTitle = modal.querySelector('#feed-item-modal-label');
+  const modalBody = modal.querySelector('#feed-item-modal-body');
+
+  modalTitle.textContent = title;
+  modalBody.textContent = description;
+};

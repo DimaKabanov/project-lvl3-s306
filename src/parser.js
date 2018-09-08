@@ -1,3 +1,5 @@
+import { uniqueId } from 'lodash';
+
 const getTagData = (node, tag) => node.querySelector(tag).textContent;
 
 const parseXml = (str) => {
@@ -12,6 +14,7 @@ const parseXml = (str) => {
       title: getTagData(item, 'title'),
       link: getTagData(item, 'link'),
       description: getTagData(item, 'description'),
+      id: uniqueId('newsId_'),
     })),
   };
 };

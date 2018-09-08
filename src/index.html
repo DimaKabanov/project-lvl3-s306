@@ -25,13 +25,24 @@
             </div>
         </div>
 
-        <div class="container" id="feed-container">
-            <!-- <div class="alert alert-danger" role="alert">
-                There is no rss feed on this path!
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <div class="container" id="feed-container"></div>
+
+        <!-- modal-template -->
+        <div class="modal fade" id="feed-item-modal" tabindex="-1" role="dialog" aria-labelledby="feed-item-modal-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feed-item-modal-label"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
-                </button>
-            </div> -->
+                    </button>
+                </div>
+                <div class="modal-body" id="feed-item-modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+            </div>
         </div>
 
         <!-- feed-template -->
@@ -39,16 +50,16 @@
             <div class="mb-5" id="feed-wrapper">
                 <h2 id="feed-title"></h2>
                 <p class="lead" id="feed-desc"></p>
-                <div class="list-group" id="feed-list"></div>
+                <ul class="list-group" id="feed-list"></ul>
             </div>
         </template>
 
         <!-- feed-item-template -->
         <template id="feed-item-template">
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" id="feed-item-link">
-                <h5 class="mb-1" id="feed-item-title"></h5>
-                <p class="mb-0" id="feed-item-desc"></p>
-            </a>
+            <li class="list-group-item" id="feed-item-wrapper">
+                <a class="h6 mb-3 d-block" href="#" id="feed-item-link"></a>
+                <button type="button" class="btn btn-primary" id="feed-item-btn" data-toggle="modal" data-target="#feed-item-modal">More info</button>
+            </li>
         </template>
     </body>
 </html>
