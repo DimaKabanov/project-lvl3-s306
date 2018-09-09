@@ -9,11 +9,13 @@ const parseXml = (str) => {
 
   return {
     title: getTagData(xml, 'title'),
+    link: getTagData(xml, 'link'),
     description: getTagData(xml, 'description'),
     items: feedList.map(item => ({
       title: getTagData(item, 'title'),
       link: getTagData(item, 'link'),
       description: getTagData(item, 'description'),
+      pubDate: getTagData(item, 'pubDate'),
       id: uniqueId('newsId_'),
     })),
   };

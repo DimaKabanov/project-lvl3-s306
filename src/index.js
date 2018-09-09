@@ -6,9 +6,25 @@ import { watch } from 'melanke-watchjs';
 import getFeedData from './request';
 import parseXml from './parser';
 import { renderFeed, renderModal } from './render';
+import { getDiffBetweenFeedNews, getFeedsItemById, updateOldFeeds } from './feedUtils';
 import * as state from './state';
 
 const urlProxy = 'https://thingproxy.freeboard.io/fetch/';
+
+const updateRenderedFeeds = () => {
+  setInterval(() => {
+    const promises = state.getListUrl().map(urlToFeed => getFeedData(urlProxy, urlToFeed));
+
+    Promise.all(promises)
+      .then((responses) => {
+        const newFeedsData = responses.map(response => parseXml(response));
+        const oldFeedsData = state.getAllFeeds();
+        const diff = getDiffBetweenFeedNews(newFeedsData, oldFeedsData);
+        const updatedFeeds = updateOldFeeds(diff, oldFeedsData);
+        state.replaceFeedsList(updatedFeeds);
+      });
+  }, 5000);
+};
 
 const feedFormStates = [
   {
@@ -41,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedError = document.getElementById('feed-error');
   const feedBtn = document.getElementById('feed-btn');
 
-  state.updateFormElements({ feedInput, feedError, feedBtn });
+  state.replaceFormElements({ feedInput, feedError, feedBtn });
 
   feedForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
@@ -51,20 +67,22 @@ document.addEventListener('DOMContentLoaded', () => {
     feedInput.value = '';
 
     currentFeed.then((data) => {
-      const carrentFeedData = parseXml(data);
-      state.updateFeedsList(carrentFeedData);
+      const currentFeedData = parseXml(data);
+      state.updateFeedsList(currentFeedData);
     });
   });
 
   feedInput.addEventListener('input', ({ target }) => {
     const { value } = target;
-    state.updateFormState(getFeedFormState(value, feedInput));
+    state.replaceFormState(getFeedFormState(value, feedInput));
   });
+
+  updateRenderedFeeds();
 });
 
 $('#feed-item-modal').on('show.bs.modal', (evt) => {
   const newsId = $(evt.relatedTarget).attr('data-news-id');
-  renderModal(state.getFeedsItemById(newsId), evt.target);
+  renderModal(getFeedsItemById(newsId), evt.target);
 });
 
 watch(state.getState(), 'feedFormState', () => {
