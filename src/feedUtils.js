@@ -1,5 +1,4 @@
 import { find, differenceWith } from 'lodash';
-import { getAllFeeds } from './state';
 
 const getNewsList = feedList => feedList.reduce((newsList, feed) => [...newsList, feed.items], []);
 
@@ -19,7 +18,7 @@ export const getDiffBetweenFeedNews = (newFeeds, oldFeeds) => {
     differenceWith(news, oldNews[index], (n, o) => n.pubDate === o.pubDate)));
 };
 
-export const getFeedsItemById = (id) => {
-  const totalNewsList = getTotalNewsList(getAllFeeds());
+export const getFeedsItemById = (allFeeds, id) => {
+  const totalNewsList = getTotalNewsList(allFeeds);
   return find(totalNewsList, news => news.id === id);
 };

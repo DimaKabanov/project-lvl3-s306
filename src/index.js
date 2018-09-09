@@ -10,18 +10,19 @@ import { getDiffBetweenFeedNews, getFeedsItemById, updateOldFeeds } from './feed
 import * as state from './state';
 
 const urlProxy = 'https://thingproxy.freeboard.io/fetch/';
+const newState = state.initState();
 
 const updateRenderedFeeds = () => {
   setInterval(() => {
-    const promises = state.getListUrl().map(urlToFeed => getFeedData(urlProxy, urlToFeed));
+    const promises = state.getListUrl(newState).map(urlToFeed => getFeedData(urlProxy, urlToFeed));
 
     Promise.all(promises)
       .then((responses) => {
         const newFeedsData = responses.map(response => parseXml(response));
-        const oldFeedsData = state.getAllFeeds();
+        const oldFeedsData = state.getAllFeeds(newState);
         const diff = getDiffBetweenFeedNews(newFeedsData, oldFeedsData);
         const updatedFeeds = updateOldFeeds(diff, oldFeedsData);
-        state.replaceFeedsList(updatedFeeds);
+        state.replaceFeedsList(newState, updatedFeeds);
       });
   }, 5000);
 };
@@ -33,7 +34,7 @@ const feedFormStates = [
   },
   {
     type: 'submittedUrl',
-    check: ({ url }) => state.isDoubleUrl(url),
+    check: ({ url }) => state.isDoubleUrl(newState, url),
     errorMessage: 'This URL is already in the list',
   },
   {
@@ -57,24 +58,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedError = document.getElementById('feed-error');
   const feedBtn = document.getElementById('feed-btn');
 
-  state.replaceFormElements({ feedInput, feedError, feedBtn });
+  state.replaceFormElements(newState, { feedInput, feedError, feedBtn });
 
   feedForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
     const urlToFeed = feedInput.value;
     const currentFeed = getFeedData(urlProxy, urlToFeed);
-    state.updateListUrl(urlToFeed);
+    state.updateListUrl(newState, urlToFeed);
     feedInput.value = '';
 
     currentFeed.then((data) => {
       const currentFeedData = parseXml(data);
-      state.updateFeedsList(currentFeedData);
+      state.updateFeedsList(newState, currentFeedData);
     });
   });
 
   feedInput.addEventListener('input', ({ target }) => {
     const { value } = target;
-    state.replaceFormState(getFeedFormState(value, feedInput));
+    state.replaceFormState(newState, getFeedFormState(value, feedInput));
   });
 
   updateRenderedFeeds();
@@ -82,12 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 $('#feed-item-modal').on('show.bs.modal', (evt) => {
   const newsId = $(evt.relatedTarget).attr('data-news-id');
-  renderModal(getFeedsItemById(newsId), evt.target);
+  renderModal(getFeedsItemById(state.getAllFeeds(newState), newsId), evt.target);
 });
 
-watch(state.getState(), 'feedFormState', () => {
-  const { type, errorMessage } = state.getFormState();
-  const { feedInput, feedError, feedBtn } = state.getFormElements();
+watch(newState, 'feedFormState', () => {
+  const { type, errorMessage } = state.getFormState(newState);
+  const { feedInput, feedError, feedBtn } = state.getFormElements(newState);
 
   switch (type) {
     case 'validUrl':
@@ -111,8 +112,8 @@ watch(state.getState(), 'feedFormState', () => {
   }
 });
 
-watch(state.getState(), 'allFeeds', () => {
+watch(newState, 'allFeeds', () => {
   const feedContainer = document.getElementById('feed-container');
   feedContainer.innerHTML = '';
-  state.getAllFeeds().forEach(feed => renderFeed(feed, feedContainer));
+  state.getAllFeeds(newState).forEach(feed => renderFeed(feed, feedContainer));
 });

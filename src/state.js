@@ -1,37 +1,40 @@
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
 import validator from 'validator';
 
-const state = {
-  feedFormState: {},
-  formElements: {},
-  allFeeds: [],
-  listUrl: [],
-};
+export const initState = () => (
+  {
+    feedFormState: {},
+    formElements: {},
+    allFeeds: [],
+    listUrl: [],
+  }
+);
 
-export const updateFeedsList = (newFeed) => {
+export const updateFeedsList = (state, newFeed) => {
   state.allFeeds = [...state.allFeeds, newFeed];
 };
 
-export const replaceFeedsList = (updatedFeedList) => {
+export const replaceFeedsList = (state, updatedFeedList) => {
   state.allFeeds = updatedFeedList;
 };
 
-export const replaceFormState = (newState) => {
-  state.feedFormState = newState;
+export const replaceFormState = (state, newFormState) => {
+  state.feedFormState = newFormState;
 };
 
-export const replaceFormElements = (elements) => {
+export const replaceFormElements = (state, elements) => {
   state.formElements = elements;
 };
 
-export const updateListUrl = (url) => {
+export const updateListUrl = (state, url) => {
   state.listUrl = [...state.listUrl, url];
 };
 
-export const isDoubleUrl = url => state.listUrl.includes(url);
+export const isDoubleUrl = ({ listUrl }, url) => listUrl.includes(url);
 export const isValidUrl = url => validator.isURL(url);
 
-export const getAllFeeds = () => state.allFeeds;
-export const getFormState = () => state.feedFormState;
-export const getFormElements = () => state.formElements;
-export const getListUrl = () => state.listUrl;
-export const getState = () => state;
+export const getAllFeeds = ({ allFeeds }) => allFeeds;
+export const getFormState = ({ feedFormState }) => feedFormState;
+export const getFormElements = ({ formElements }) => formElements;
+export const getListUrl = ({ listUrl }) => listUrl;
