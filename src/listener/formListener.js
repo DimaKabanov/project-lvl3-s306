@@ -1,7 +1,6 @@
 
 import getXml from '../utils/request';
 import parseXml from '../utils/parser';
-import getInputState from '../utils/inputState';
 import {
   getDiffBetweenFeedNews,
   updateOldFeeds,
