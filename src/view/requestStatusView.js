@@ -29,10 +29,12 @@ export default (status) => {
     case 'successfully':
       renderAlert('success', 'The RSS download was successful');
       feedInput.disabled = false;
+      feedInput.value = '';
       break;
     case 'failed':
       renderAlert('danger', 'RSS download failed');
       feedInput.disabled = false;
+      feedBtn.disabled = false;
       break;
     default:
       throw new Error(`Incorrect status '${status}'`);

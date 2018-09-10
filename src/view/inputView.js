@@ -13,7 +13,6 @@ export default (type) => {
       feedInput.classList.remove('is-invalid');
       feedError.textContent = '';
       feedBtn.disabled = true;
-      feedInput.value = '';
       break;
     case 'invalidUrl':
       feedInput.classList.add('is-invalid');

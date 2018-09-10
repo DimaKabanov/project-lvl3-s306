@@ -34,8 +34,7 @@ export default (evt, appState, updateState) => {
   const { feeds, links } = appState;
   const feedInput = document.getElementById('feed-input');
   const urlToFeed = feedInput.value;
-  const { type } = getInputState('', appState);
-  updateState({ ...appState, input: type, requestStatus: 'load' });
+  updateState({ ...appState, requestStatus: 'load' });
   const currentFeedXml = getXml(urlToFeed);
 
   currentFeedXml.then((xml) => {
