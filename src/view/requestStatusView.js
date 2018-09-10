@@ -1,10 +1,13 @@
-const renderAlert = (type, message) => {
+const removeAlert = () => {
   const renderedAlert = document.getElementById('alert-wrapper');
 
   if (renderedAlert) {
     renderedAlert.remove();
   }
+};
 
+const renderAlert = (type, message) => {
+  removeAlert();
   const headerContainer = document.getElementById('header-container');
   const alertTemplate = document.getElementById('alert-template');
   const alertWrapper = alertTemplate.content.getElementById('alert-wrapper');
@@ -16,7 +19,7 @@ const renderAlert = (type, message) => {
   headerContainer.appendChild(alert);
 };
 
-export default (status) => {
+export default ({ status, message }) => {
   const feedBtn = document.getElementById('feed-btn');
   const feedInput = document.getElementById('feed-input');
 
@@ -27,16 +30,18 @@ export default (status) => {
       feedInput.disabled = true;
       break;
     case 'successfully':
-      renderAlert('success', 'The RSS download was successful');
+      renderAlert('success', `Load RSS by URL ${message} was successful`);
       feedInput.disabled = false;
       feedInput.focus();
       feedInput.value = '';
+      setTimeout(removeAlert, 5000);
       break;
     case 'failed':
-      renderAlert('danger', 'RSS download failed');
+      renderAlert('danger', `RSS download failed - ${message}`);
       feedInput.disabled = false;
       feedInput.focus();
       feedBtn.disabled = false;
+      setTimeout(removeAlert, 5000);
       break;
     default:
       throw new Error(`Incorrect status '${status}'`);

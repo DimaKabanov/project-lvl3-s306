@@ -15,7 +15,7 @@ export default () => {
   const state = {
     input: '',
     modal: {},
-    requestStatus: '',
+    requestStatus: { status: '', message: '' },
     feeds: [],
     links: [],
   };

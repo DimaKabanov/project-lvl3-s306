@@ -34,18 +34,18 @@ export default (evt, appState, updateState) => {
   const { feeds, links } = appState;
   const feedInput = document.getElementById('feed-input');
   const urlToFeed = feedInput.value;
-  updateState({ ...appState, requestStatus: 'load' });
+  updateState({ ...appState, requestStatus: { status: 'load' } });
   const currentFeedXml = getXml(urlToFeed);
 
   currentFeedXml.then((xml) => {
     const parsedXml = parseXml(xml);
 
     updateState({
-      requestStatus: 'successfully',
+      requestStatus: { status: 'successfully', message: urlToFeed },
       feeds: [...feeds, parsedXml],
       links: [...links, urlToFeed],
     });
 
     updateRenderedFeeds(urlToFeed, appState, updateState);
-  }).catch(() => updateState({ ...appState, requestStatus: 'failed' }));
+  }).catch(error => updateState({ ...appState, requestStatus: { status: 'failed', message: error.message } }));
 };
