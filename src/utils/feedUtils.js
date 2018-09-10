@@ -1,25 +1,25 @@
 import { find, differenceWith } from 'lodash';
 
-const getNewsList = feedList => feedList.reduce((newsList, feed) => [...newsList, feed.items], []);
-
 const getTotalNewsList = feedList => (
   feedList.reduce((newsList, feed) => [...newsList, ...feed.items], [])
 );
 
-export const updateOldFeeds = (diff, oldFeeds) => (
-  oldFeeds.map((feed, index) => ({ ...feed, items: [...feed.items, ...diff[index]] }))
+export const updateOldFeeds = (diff, oldFeed) => (
+  { ...oldFeed, items: [...diff, ...oldFeed.items] }
 );
 
-export const getDiffBetweenFeedNews = (newFeeds, oldFeeds) => {
-  const newNews = getNewsList(newFeeds);
-  const oldNews = getNewsList(oldFeeds);
-
-  return newNews.map((news, index) => (
-    differenceWith(news, oldNews[index], (n, o) => n.pubDate === o.pubDate)));
-};
+export const getDiffBetweenFeedNews = (newFeed, oldFeed) => (
+  differenceWith(newFeed.items, oldFeed.items, (n, o) => n.pubDate === o.pubDate)
+);
 
 export const getFeedsItemById = (appState, id) => {
   const { feeds } = appState;
   const totalNewsList = getTotalNewsList(feeds);
   return find(totalNewsList, news => news.id === id);
 };
+
+export const getFeedDataByUrl = (feeds, url) => find(feeds, ({ link }) => link === url);
+
+export const updateFeedByUrl = (feeds, updatedFeed, url) => (
+  feeds.map(feed => (feed.link === url ? updatedFeed : feed))
+);

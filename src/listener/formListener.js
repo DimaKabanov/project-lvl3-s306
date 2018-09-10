@@ -2,28 +2,31 @@
 import getXml from '../utils/request';
 import parseXml from '../utils/parser';
 import getInputState from '../utils/inputState';
-import { getDiffBetweenFeedNews, updateOldFeeds } from '../utils/feedUtils';
+import {
+  getDiffBetweenFeedNews,
+  updateOldFeeds,
+  getFeedDataByUrl,
+  updateFeedByUrl,
+} from '../utils/feedUtils';
 
-let timeoutID;
+const updateRenderedFeeds = (url, appState, updateState) => {
+  const { feeds } = appState;
+  const updatedFeedXml = getXml(url);
 
-const updateRenderedFeeds = (appState, updateState) => {
-  const { feeds, links } = appState;
-  const promises = links.map(link => getXml(link));
+  updatedFeedXml.then((xml) => {
+    const newFeedData = parseXml(xml);
+    const { link } = newFeedData;
+    const oldFeedData = getFeedDataByUrl(feeds, link);
+    const diff = getDiffBetweenFeedNews(newFeedData, oldFeedData);
+    const updatedFeed = updateOldFeeds(diff, oldFeedData);
+    const updatedFeeds = updateFeedByUrl(feeds, updatedFeed, link);
 
-  Promise.all(promises)
-    .then((responses) => {
-      const newFeedsData = responses.map(response => parseXml(response));
-      const oldFeedsData = feeds;
-      const diff = getDiffBetweenFeedNews(newFeedsData, oldFeedsData);
-      const updatedFeeds = updateOldFeeds(diff, oldFeedsData);
-      updateState({ ...appState, feeds: updatedFeeds });
-    })
-    .then(() => {
-      timeoutID = setTimeout(updateRenderedFeeds, 5000, appState, updateState);
-    })
+    updateState({ ...appState, feeds: updatedFeeds });
+  })
+    .then(() => setTimeout(updateRenderedFeeds, 5000, url, appState, updateState))
     .catch((error) => {
       console.log(error);
-      timeoutID = setTimeout(updateRenderedFeeds, 5000, appState, updateState);
+      setTimeout(updateRenderedFeeds, 5000, url, appState, updateState);
     });
 };
 
@@ -46,7 +49,6 @@ export default (evt, appState, updateState) => {
       links: [...links, urlToFeed],
     });
 
-    clearTimeout(timeoutID);
-    updateRenderedFeeds(appState, updateState);
+    updateRenderedFeeds(urlToFeed, appState, updateState);
   }).catch(() => updateState({ ...appState, requestStatus: 'failed' }));
 };
