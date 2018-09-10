@@ -1,5 +1,5 @@
 import fs from 'fs';
-import parseXml from '../src/parser';
+import parseXml from '../src/utils/parser';
 
 test('Check parsing XML', () => {
   const feedStr = fs.readFileSync('__tests__/__fixtures__/feed', 'utf8');

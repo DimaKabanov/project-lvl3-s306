@@ -2,7 +2,7 @@ import { uniqueId } from 'lodash';
 
 const getTagData = (node, tag) => node.querySelector(tag).textContent;
 
-const parseXml = (str) => {
+export default (str) => {
   const parser = new DOMParser();
   const xml = parser.parseFromString(str, 'application/xml');
   const feedList = [...xml.querySelectorAll('item')];
@@ -20,5 +20,3 @@ const parseXml = (str) => {
     })),
   };
 };
-
-export default parseXml;

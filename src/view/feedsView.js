@@ -29,16 +29,8 @@ const createFeed = (feedData) => {
   return feed;
 };
 
-export const renderFeed = (feedData, feedContainer) => {
-  const feed = createFeed(feedData);
-  feedContainer.appendChild(feed);
-};
-
-export const renderModal = (modalData, modal) => {
-  const { title, description } = modalData;
-  const modalTitle = modal.querySelector('#feed-item-modal-label');
-  const modalBody = modal.querySelector('#feed-item-modal-body');
-
-  modalTitle.textContent = title;
-  modalBody.textContent = description;
+export default (feeds) => {
+  const feedContainer = document.getElementById('feed-container');
+  feedContainer.innerHTML = '';
+  feeds.forEach(feed => feedContainer.appendChild(createFeed(feed)));
 };

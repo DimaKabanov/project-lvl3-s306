@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const getFeedData = (proxy, url) => (
+const proxy = 'https://thingproxy.freeboard.io/fetch/';
+
+export default url => (
   axios.get(`${proxy}${url}`)
     .then((response) => {
       const { data } = response;
       return data;
     })
 );
-
-export default getFeedData;

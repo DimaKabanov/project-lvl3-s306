@@ -18,7 +18,8 @@ export const getDiffBetweenFeedNews = (newFeeds, oldFeeds) => {
     differenceWith(news, oldNews[index], (n, o) => n.pubDate === o.pubDate)));
 };
 
-export const getFeedsItemById = (allFeeds, id) => {
-  const totalNewsList = getTotalNewsList(allFeeds);
+export const getFeedsItemById = (appState, id) => {
+  const { feeds } = appState;
+  const totalNewsList = getTotalNewsList(feeds);
   return find(totalNewsList, news => news.id === id);
 };
