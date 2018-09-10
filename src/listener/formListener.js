@@ -23,11 +23,10 @@ const updateRenderedFeeds = (url, appState, updateState) => {
 
     updateState({ ...appState, feeds: updatedFeeds });
   })
-    .then(() => setTimeout(updateRenderedFeeds, 5000, url, appState, updateState))
     .catch((error) => {
       console.log(error);
-      setTimeout(updateRenderedFeeds, 5000, url, appState, updateState);
-    });
+    })
+    .finally(() => setTimeout(updateRenderedFeeds, 5000, url, appState, updateState));
 };
 
 export default (evt, appState, updateState) => {
@@ -35,8 +34,7 @@ export default (evt, appState, updateState) => {
   const { feeds, links } = appState;
   const feedInput = document.getElementById('feed-input');
   const urlToFeed = feedInput.value;
-  feedInput.value = '';
-  const { type } = getInputState(feedInput.value, appState);
+  const { type } = getInputState('', appState);
   updateState({ ...appState, input: type, requestStatus: 'load' });
   const currentFeedXml = getXml(urlToFeed);
 
