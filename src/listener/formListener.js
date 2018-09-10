@@ -4,6 +4,8 @@ import parseXml from '../utils/parser';
 import getInputState from '../utils/inputState';
 import { getDiffBetweenFeedNews, updateOldFeeds } from '../utils/feedUtils';
 
+let timeoutID;
+
 const updateRenderedFeeds = (appState, updateState) => {
   const { feeds, links } = appState;
   const promises = links.map(link => getXml(link));
@@ -16,10 +18,12 @@ const updateRenderedFeeds = (appState, updateState) => {
       const updatedFeeds = updateOldFeeds(diff, oldFeedsData);
       updateState({ ...appState, feeds: updatedFeeds });
     })
-    .then(() => setTimeout(updateRenderedFeeds, 5000, appState, updateState))
-    .catch((e) => {
-      console.log(e);
-      setTimeout(updateRenderedFeeds, 5000, appState, updateState);
+    .then(() => {
+      timeoutID = setTimeout(updateRenderedFeeds, 5000, appState, updateState);
+    })
+    .catch((error) => {
+      console.log(error);
+      timeoutID = setTimeout(updateRenderedFeeds, 5000, appState, updateState);
     });
 };
 
@@ -42,6 +46,7 @@ export default (evt, appState, updateState) => {
       links: [...links, urlToFeed],
     });
 
+    clearTimeout(timeoutID);
     updateRenderedFeeds(appState, updateState);
   }).catch(() => updateState({ ...appState, requestStatus: 'failed' }));
 };
